@@ -5,12 +5,25 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import re
 import urllib.request
+
+from tensorflow.python.keras.utils.generic_utils import default
 from utils.recog import solve
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+default_keyword = {
+	"boat": ["yawl", "catamaran", "pirate", "speedboat"],
+	"plane": ["airliner"],
+	"bus": ["trolleybus"],
+	"train": ["steam_locomotive", "crane", "electric_locomotive", "freight_car"]
+}
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+options = webdriver.ChromeOptions()
+options.add_argument('--disable-logging')
 driver = webdriver.Chrome()
-driver.get('https://beta.exitus.me')
+driver.get('https://typeracer.com')
 time.sleep(3)
 
 # Initial
@@ -37,6 +50,7 @@ pageSource = driver.page_source
 
 target_element = driver.find_element_by_css_selector('.prompt-text')
 target = target_element.text.split()[-1]
+target_array = default_keyword[target]
 print("Found: " + target)
 
 # regx = "^background: url\(&quot;(.+)quot;\)$"
@@ -49,15 +63,17 @@ firstCapt = result_regx_img[3:]
 correct = []
 test_case = []
 
+print(f"Predicting {target}")
 for n, url_image in enumerate(firstCapt):
     path = './images-1/'+str(n)+'.png'
     dl = urllib.request.urlretrieve(url_image, path)
 
+    print(f"Checking {path}")
     result = solve(path)
-    for name in result:
-        if target.lower() in name.lower():
+    for keyword in result:
+        if keyword in target_array:
             correct.append(url_image)
-            test_case.append(name)
+            test_case.append(keyword)
             break
 
 print('CORRECT URL: {}'.format('\n\n'.join(correct)))
@@ -65,10 +81,12 @@ print('KEYWORD: {}'.format(target))
 print('RESULT: {}'.format(test_case))
 print('TOTAL: {}'.format(len(correct)))
 
+time.sleep(3)
 for crct in correct:
     for no, url in enumerate(firstCapt):
         if crct == url:
-            images = driver.find_element_by_xpath("//*[@aria-label='Challenge Image {}']//div[1]//div[1]".format(no))
+            # images = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Challenge Image {}']//div[1]//div[1]".format(no))))
+            images = driver.find_element_by_xpath("//*[@aria-label='Challenge Image {}']//div[1]//div[1]".format(no+1))
             driver.execute_script("arguments[0].click();", images)
 
 time.sleep(1)
@@ -92,6 +110,7 @@ pageSource = driver.page_source
 
 target_element = driver.find_element_by_css_selector('.prompt-text')
 target = target_element.text.split()[-1]
+target_array = default_keyword[target]
 print("Found: " + target)
 
 # regx = "^background: url\(&quot;(.+)quot;\)$"
@@ -109,10 +128,10 @@ for n, url_image in enumerate(secondCapt):
     dl = urllib.request.urlretrieve(url_image, path)
 
     result = solve(path)
-    for name in result:
-        if target.lower() in name.lower():
+    for keyword in result:
+        if keyword in target_array:
             correct.append(url_image)
-            test_case.append(name)
+            test_case.append(keyword)
             break
 
 print('CORRECT URL: {}'.format('\n\n'.join(correct)))
@@ -120,10 +139,12 @@ print('KEYWORD: {}'.format(target))
 print('RESULT: {}'.format(test_case))
 print('TOTAL: {}'.format(len(correct)))
 
+time.sleep(3)
 for crct in correct:
     for no, url in enumerate(secondCapt):
         if crct == url:
-            images = driver.find_element_by_xpath("//*[@aria-label='Challenge Image {}']//div[1]//div[1]".format(no))
+            images = driver.find_element_by_xpath("//*[@aria-label='Challenge Image {}']//div[1]//div[1]".format(no+1))
+            # images = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//*[@aria-label='Challenge Image {}']//div[1]//div[1]".format(no))))
             driver.execute_script("arguments[0].click();", images)
 
 time.sleep(1)
