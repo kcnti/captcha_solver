@@ -1,10 +1,16 @@
-import re
-import os
 import time
-import undetected_chromedriver.v2 as uc
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+import re
+import urllib.request
+
+from tensorflow.python.keras.utils.generic_utils import default
+from utils.recog import solve
+import os
 
 from utils.func import *
-from tensorflow.python.keras.utils.generic_utils import default
 
 default_keyword = {
 	"boat": ["yawl", "catamaran", "pirate", "speedboat", "liner", "schooner"],
@@ -16,24 +22,17 @@ default_keyword = {
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-options = uc.ChromeOptions()
-# options.add_argument("--headless")
-options.add_argument("--window-size=1500,1200")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--disable-gpu")
-options.add_argument("--log-level=3")
-options.add_argument("--disable-popup-blocking")
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--incognito")
-driver = uc.Chrome(service_log_path="NUL", options=options)
-# driver.manage().deleteAllCookies()
-driver.get('https://google.com')
-p = driver.current_window_handle
-driver.execute_script('''window.open("https://typeracer.com","_blank");''')
-driver.close()
-driver.switch_to.window(driver.window_handles[0])
-
+# options = webdriver.ChromeOptions()
+# options.add_argument("headless")
+# options.add_argument("window-size=1500,1200")
+# options.add_argument("no-sandbox")
+# options.add_argument("disable-dev-shm-usage")
+# options.add_argument("disable-gpu")
+# options.add_argument("log-level=3")
+profile = webdriver.FirefoxProfile()
+profile.set_preference('intl.accept_languages', 'en-US, en')
+driver = webdriver.Firefox(firefox_profile=profile)
+driver.get('https://typeracer.com')
 time.sleep(3)
 
 # Initial
@@ -63,10 +62,10 @@ target = target_element.text.split()[-1]
 target_array = default_keyword[target]
 print("Found: " + target)
 
-# regx = "^background: url\(&quot;(.+)quot;\)$"
-regx_img_element = r'<div class="image" style=\(.*?background: url\(&quot;https://imgs.hcaptcha.com/.*?&quot;\) 50% 50% / 96.6667px 96.6667px no-repeat;"\)></div>'
+# regx = "^background: url\(\'(.+)quot;\)$"
+regx_img_element = r'<div class="image" style=\(.*?background: url\(\'https://imgs.hcaptcha.com/.*?\'\) 50% 50% / 96.6667px 96.6667px no-repeat;"\)></div>'
 
-regx_img = r"background: url\(&quot;(https://imgs.hcaptcha.com/.*?)&quot;\)"
+regx_img = r"background: url\(\'(https://imgs.hcaptcha.com/.*?)\'\)"
 result_regx_img = re.findall(regx_img, pageSource, flags=re.MULTILINE)
 firstCapt = result_regx_img[3:]
 
@@ -109,10 +108,10 @@ target = target_element.text.split()[-1]
 target_array = default_keyword[target]
 print("Found: " + target)
 
-# regx = "^background: url\(&quot;(.+)quot;\)$"
-regx_img_element = r'<div class="image" style=\(.*?background: url\(&quot;https://imgs.hcaptcha.com/.*?&quot;\) 50% 50% / 96.6667px 96.6667px no-repeat;"\)></div>'
+# regx = "^background: url\(\'(.+)quot;\)$"
+regx_img_element = r'<div class="image" style=\(.*?background: url\(\'https://imgs.hcaptcha.com/.*?\'\) 50% 50% / 96.6667px 96.6667px no-repeat;"\)></div>'
 
-regx_img = r"background: url\(&quot;(https://imgs.hcaptcha.com/.*?)&quot;\)"
+regx_img = r"background: url\(\'(https://imgs.hcaptcha.com/.*?)\'\)"
 result_regx_img = re.findall(regx_img, pageSource, flags=re.MULTILINE)
 secondCapt = result_regx_img[3:]
 

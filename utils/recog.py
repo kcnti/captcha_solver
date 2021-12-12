@@ -2,6 +2,8 @@ import sys
 import numpy as np
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications import vgg19
+import tensorflow as tf
+
 
 def solve(path):
     # model = resnet50.ResNet50()
@@ -22,4 +24,4 @@ def solve(path):
     return result
 
 if __name__ == "__main__":
-    solve('./images-2/0.png')
+    solve('./images-1/5.png')
