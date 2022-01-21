@@ -6,6 +6,7 @@ import undetected_chromedriver.v2 as uc
 from utils.func import *
 from tensorflow.python.keras.utils.generic_utils import default
 
+# keyword from model
 default_keyword = {
 	"boat": ["yawl", "catamaran", "pirate", "speedboat", "liner", "schooner"],
 	"plane": ["airliner"],
